@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Full Stack Developer</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Syne', 'sans-serif'],
+            mono: ['DM Mono', 'monospace'],
+            body: ['Outfit', 'sans-serif'],
+          },
+          colors: {
+            neon: '#00FFB3',
+            acid: '#C8FF00',
+            void: '#080B14',
+            surface: '#0D1120',
+            panel: '#141826',
+            glass: '#1C2235',
+            muted: '#8B92A8',
+            soft: '#C4CAD8',
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s ease-in-out infinite',
+            'spin-slow': 'spin 20s linear infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'slide-up': 'slideUp 0.8s ease forwards',
+            'fade-in': 'fadeIn 1s ease forwards',
+            'typewriter': 'typewriter 3s steps(30) forwards',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            glow: {
+              '0%': { textShadow: '0 0 20px #00FFB3, 0 0 40px #00FFB3' },
+              '100%': { textShadow: '0 0 40px #00FFB3, 0 0 80px #00FFB3, 0 0 120px #00FFB3' },
+            },
+            slideUp: {
+              '0%': { opacity: 0, transform: 'translateY(40px)' },
+              '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            fadeIn: {
+              '0%': { opacity: 0 },
+              '100%': { opacity: 1 },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: #080B14;
+      color: #C4CAD8;
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* Grid background */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(0, 255, 179, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 179, 0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* Glowing orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    /* Skill cards */
+    .skill-card {
+      background: linear-gradient(135deg, #141826, #1C2235);
+      border: 1px solid rgba(0, 255, 179, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Neon text */
+    .neon-text {
+      color: #00FFB3;
+      text-shadow: 0 0 20px rgba(0, 255, 179, 0.6);
+    }
+
+    .acid-text {
+      color: #C8FF00;
+      text-shadow: 0 0 20px rgba(200, 255, 0, 0.4);
+    }
+
+    /* Glassmorphism */
+    .glass-card {
+      background: rgba(20, 24, 38, 0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    /* Animated border */
+    .border-animate {
+      position: relative;
+    }
+
+    .border-animate::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #00FFB3, #C8FF00, #00FFB3);
+      background-size: 200%;
+      animation: borderMove 3s linear infinite;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .border-animate:hover::after {
+      opacity: 1;
+    }
+
+    @keyframes borderMove {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: 200% 50%;
+      }
+    }
+
+    /* Scroll animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Terminal blink */
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .cursor {
+      animation: blink 1s step-end infinite;
+    }
+
+    /* Nav */
+    nav {
+      background: rgba(8, 11, 20, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 255, 179, 0.08);
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      background: linear-gradient(90deg, #00FFB3, #C8FF00);
+      border-radius: 99px;
+      height: 4px;
+      transition: width 1s ease;
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #00FFB3;
+    }
+
+    /* Floating tag */
+    .tag {
+      background: rgba(0, 255, 179, 0.08);
+      border: 1px solid rgba(0, 255, 179, 0.2);
+      color: #00FFB3;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      display: inline-block;
+    }
+
+    /* CTA button */
+    .btn-primary {
+      background: linear-gradient(135deg, #00FFB3, #00D4A0);
+      color: #080B14;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      padding: 14px 32px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px rgba(0, 255, 179, 0.25);
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(0, 255, 179, 0.4);
+    }
+
+    .btn-outline {
+      border: 1px solid rgba(0, 255, 179, 0.4);
+      color: #00FFB3;
+      font-weight: 600;
+      font-family: 'Syne', sans-serif;
+      padding: 14px 32px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 255, 179, 0.08);
+      border-color: #00FFB3;
+      box-shadow: 0 0 30px rgba(0, 255, 179, 0.15);
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 179, 0.2), transparent);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #080B14;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #00FFB3;
+      border-radius: 99px;
+    }
+
+    /* Design work cards */
+    .design-card {
+      background: linear-gradient(135deg, #141826, #1a1f30);
+      border: 1px solid rgba(200, 255, 0, 0.12);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .design-card:hover {
+      border-color: rgba(200, 255, 0, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(200, 255, 0, 0.08);
+    }
+
+    /* NanoGS section */
+    .nanogs-card {
+      background: linear-gradient(135deg, #0D1120, #12172A);
+      border: 1px solid rgba(0, 255, 179, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nanogs-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(0, 255, 179, 0.03) 25%, transparent 50%);
+      animation: spin 10s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Mobile nav toggle */
+    #mobile-menu {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      #mobile-menu.open {
+        display: flex;
+      }
+    }
+
+    /* Terminal right column enhancements */
+    .terminal-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .terminal-window {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* Floating decorative elements around terminal */
+    .terminal-badge {
+      background: rgba(0, 255, 179, 0.06);
+      border: 1px solid rgba(0, 255, 179, 0.18);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: #8B92A8;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .terminal-badge .highlight {
+      color: #00FFB3;
+    }
+
+    .terminal-badge .acid {
+      color: #C8FF00;
+    }
+  </style>
+</head>
+
+<body class="grid-bg">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#home" class="font-display font-800 text-xl tracking-tight">
+        <span class="text-white">ahnafalsadid</span><span class="neon-text">.</span><span class="text-white">dev</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#about" class="text-sm font-body text-muted hover:text-white transition-colors">About</a>
+        <a href="#skills" class="text-sm font-body text-muted hover:text-white transition-colors">Skills</a>
+        <a href="#nanogs" class="text-sm font-body text-muted hover:text-white transition-colors">NanoGS</a>
+        <a href="#contact" class="text-sm font-body text-muted hover:text-white transition-colors">Contact</a>
+      </div>
+      <a href="#contact" class="hidden md:block btn-primary text-sm py-2 px-5">Hire Me</a>
+      <!-- Mobile hamburger -->
+      <button onclick="toggleMenu()" class="md:hidden text-muted hover:text-white p-2">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="19" y2="6" />
+          <line x1="3" y1="12" x2="19" y2="12" />
+          <line x1="3" y1="18" x2="19" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="flex-col px-6 pb-4 gap-3 md:hidden">
+      <a href="#about" class="text-sm text-muted hover:text-white" onclick="toggleMenu()">About</a>
+      <a href="#skills" class="text-sm text-muted hover:text-white" onclick="toggleMenu()">Skills</a>
+      <a href="#nanogs" class="text-sm text-muted hover:text-white" onclick="toggleMenu()">NanoGS</a>
+      <a href="#contact" class="text-sm text-muted hover:text-white" onclick="toggleMenu()">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" class="relative min-h-screen flex items-center overflow-hidden pt-20">
+    <div class="max-w-6xl mx-auto px-6 py-20 w-full">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- LEFT: text content -->
+        <div class="lg:order-1">
+          <div class="section-label mb-5">Available for work</div>
+          <h1 class="font-display font-800 text-5xl md:text-7xl leading-[0.95] mb-6 text-white">
+            Full Stack<br>
+            <span class="neon-text animate-glow">Web developer</span><br>
+            <span class="text-3xl md:text-4xl text-muted font-300">& Designer</span>
+          </h1>
+          <p class="font-body text-muted text-lg leading-relaxed max-w-md mb-10">
+            I build fast, modern web apps and design stuff people actually want to look at.
+            Creator of <span class="acid-text font-600">NanoGS</span> — a custom database built from scratch.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <a href="#skills" class="btn-primary">View My Skills</a>
+            <a href="#contact" class="btn-outline">Let's Talk</a>
+          </div>
+        </div>
+
+        <!-- RIGHT: terminal + info cards -->
+        <div class="lg:order-2 terminal-right">
+
+          <!-- Main terminal window -->
+          <div class="terminal-window glass-card rounded-2xl p-5 font-mono text-sm">
+            <div class="flex gap-1.5 mb-4">
+              <span class="w-3 h-3 rounded-full bg-red-500 opacity-70"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500 opacity-70"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500 opacity-70"></span>
+              <span class="text-muted text-xs ml-2 font-mono">~/ahnafalsadid</span>
+            </div>
+            <div class="space-y-1.5 text-sm leading-6">
+              <p class="text-muted">$ whoami</p>
+              <p class="text-[#00FFB3]">full-stack-dev &amp; creator</p>
+              <p class="text-muted mt-2">$ ls skills/</p>
+              <p class="text-soft">html&nbsp;&nbsp;js&nbsp;&nbsp;tailwind&nbsp;&nbsp;react&nbsp;&nbsp;nanoGS</p>
+              <p class="text-muted mt-2">$ cat status.txt</p>
+              <p class="text-[#C8FF00]">open_to_work: true</p>
+              <p class="text-[#C8FF00]">passion_level: maximum</p>
+              <p class="text-muted mt-2">$ _<span class="cursor text-[#00FFB3]">█</span></p>
+            </div>
+          </div>
+
+          <!-- Info badges row -->
+          <div class="flex gap-3 w-full max-w-[440px] flex-wrap">
+            <div class="terminal-badge flex-1" style="min-width: 120px;">
+              <div class="text-[10px] uppercase tracking-widest mb-1" style="color:#8B92A8;">Specialty</div>
+              <div class="highlight font-600">Full Stack</div>
+            </div>
+            <div class="terminal-badge flex-1" style="min-width: 120px;">
+              <div class="text-[10px] uppercase tracking-widest mb-1" style="color:#8B92A8;">Own Project</div>
+              <div class="acid font-600">nanoGS</div>
+            </div>
+            <div class="terminal-badge flex-1" style="min-width: 120px;">
+              <div class="text-[10px] uppercase tracking-widest mb-1" style="color:#8B92A8;">Status</div>
+              <div style="color:#00FFB3; font-weight:600;">● Available</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mt-20 divider"></div>
+      <div class="mt-8 flex flex-wrap gap-8 md:gap-16">
+        <div>
+          <div class="font-display font-800 text-3xl text-white">5+</div>
+          <div class="text-muted text-sm mt-1">Core Skills</div>
+        </div>
+        <div>
+          <div class="font-display font-800 text-3xl neon-text">1</div>
+          <div class="text-muted text-sm mt-1">Custom DB Engine</div>
+        </div>
+        <div>
+          <div class="font-display font-800 text-3xl text-white">∞</div>
+          <div class="text-muted text-sm mt-1">Things to Build</div>
+        </div>
+        <div>
+          <div class="font-display font-800 text-3xl acid-text">🔥</div>
+          <div class="text-muted text-sm mt-1">Passion Level</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="py-28 relative">
+    <div class="orb w-80 h-80 bg-[#C8FF00] opacity-[0.04] top-0 right-0"></div>
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="section-label mb-4 reveal">01 — About</div>
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <div class="reveal">
+          <h2 class="font-display font-800 text-4xl md:text-5xl text-white leading-tight mb-6">
+            Building things<br>that actually<br><span class="neon-text">work.</span>
+          </h2>
+          <p class="text-muted leading-relaxed mb-5">
+            I'm a full-stack web developer who loves writing clean code and designing interfaces that feel right. From
+            structuring a database to styling a pixel-perfect UI — I handle it all.
+          </p>
+          <p class="text-muted leading-relaxed mb-8">
+            When I'm not coding, I'm designing — posters, banners, visual stuff. And somewhere in between I built <span
+              class="acid-text font-600">NanoGS</span>, my own database system, because why use something you can build
+            yourself?
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <span class="tag">Frontend</span>
+            <span class="tag">Backend</span>
+            <span class="tag">Database Design</span>
+            <span class="tag">UI/UX</span>
+            <span class="tag">Graphic Design</span>
+          </div>
+        </div>
+        <!-- Code block visual -->
+        <div class="reveal glass-card rounded-2xl p-6 font-mono text-sm">
+          <div class="flex gap-1.5 mb-4">
+            <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500/70"></span>
+            <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+            <span class="text-muted text-xs ml-2">about.json</span>
+          </div>
+          <pre class="text-sm leading-7 overflow-x-auto"><code><span class="text-[#8B92A8]">{</span>
+  <span class="text-[#00FFB3]">"role"</span><span class="text-muted">:</span> <span class="text-[#C8FF00]">"Full Stack Developer"</span><span class="text-muted">,</span>
+  <span class="text-[#00FFB3]">"skills"</span><span class="text-muted">: [</span>
+    <span class="text-[#C8FF00]">"HTML"</span><span class="text-muted">,</span>
+    <span class="text-[#C8FF00]">"Tailwind CSS"</span><span class="text-muted">,</span>
+    <span class="text-[#C8FF00]">"React"</span><span class="text-muted">,</span>
+    <span class="text-[#C8FF00]">"Vanilla CSS"</span><span class="text-muted">,</span>
+    <span class="text-[#C8FF00]">"NanoGS"</span>
+  <span class="text-muted">],</span>
+  <span class="text-[#00FFB3]">"also"</span><span class="text-muted">:</span> <span class="text-[#C8FF00]">"Graphic Design"</span><span class="text-muted">,</span>
+  <span class="text-[#00FFB3]">"passion"</span><span class="text-muted">:</span> <span class="text-[#ffffff]">true</span><span class="text-muted">,</span>
+  <span class="text-[#00FFB3]">"open_to_work"</span><span class="text-muted">:</span> <span class="text-[#ffffff]">true</span>
+<span class="text-[#8B92A8]">}</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="py-28 relative">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="section-label mb-4 reveal">02 — Skills</div>
+      <h2 class="font-display font-800 text-4xl md:text-5xl text-white mb-4 reveal">
+        What I work with
+      </h2>
+      <p class="text-muted mb-14 reveal max-w-xl">Every tool in my stack, from the markup to the database layer.</p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
+
+        <!-- HTML -->
+        <div class="skill-card rounded-2xl p-6">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#E44D26]/10 border border-[#E44D26]/20 flex items-center justify-center mb-4 text-2xl">
+            🧱
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">HTML5</h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">Semantic, accessible markup. The foundation everything is
+            built on.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar w-[90%]"></div>
+          </div>
+          <div class="text-right text-xs text-[#00FFB3] font-mono">90%</div>
+        </div>
+
+        <!-- Tailwind -->
+        <div class="skill-card rounded-2xl p-6">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#38BDF8]/10 border border-[#38BDF8]/20 flex items-center justify-center mb-4 text-2xl">
+            💨
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">Tailwind CSS</h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">Utility-first styling. Fast, consistent, beautiful — the
+            way it should be.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar w-[88%]"></div>
+          </div>
+          <div class="text-right text-xs text-[#00FFB3] font-mono">88%</div>
+        </div>
+
+        <!-- React -->
+        <div class="skill-card rounded-2xl p-6">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#61DAFB]/10 border border-[#61DAFB]/20 flex items-center justify-center mb-4 text-2xl">
+            ⚛️
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">React</h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">Component-based UIs, hooks, state management. Building
+            interfaces that scale.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar w-[80%]"></div>
+          </div>
+          <div class="text-right text-xs text-[#00FFB3] font-mono">80%</div>
+        </div>
+
+        <!-- Vanilla CSS -->
+        <div class="skill-card rounded-2xl p-6">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#264DE4]/10 border border-[#264DE4]/20 flex items-center justify-center mb-4 text-2xl">
+            🎨
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">Vanilla CSS</h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">Custom properties, animations, grid, flexbox. Full control
+            without frameworks.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar w-[85%]"></div>
+          </div>
+          <div class="text-right text-xs text-[#00FFB3] font-mono">85%</div>
+        </div>
+
+        <!-- NanoGS -->
+        <div class="skill-card rounded-2xl p-6" style="border-color: rgba(0,255,179,0.25);">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#00FFB3]/10 border border-[#00FFB3]/30 flex items-center justify-center mb-4 text-2xl">
+            ⚡
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">NanoGS <span class="tag text-xs ml-1">Creator</span>
+          </h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">My own database system — designed and built from the ground
+            up. Custom architecture, full control.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar w-[95%]"></div>
+          </div>
+          <div class="text-right text-xs text-[#00FFB3] font-mono">95%</div>
+        </div>
+
+        <!-- JavaScript -->
+        <div class="skill-card rounded-2xl p-6" style="border-color: rgba(200,255,0,0.15);">
+          <div
+            class="w-12 h-12 rounded-xl bg-[#C8FF00]/10 border border-[#C8FF00]/20 flex items-center justify-center mb-4 text-2xl">
+            🟨
+          </div>
+          <h3 class="font-display font-700 text-white text-lg mb-2">JavaScript</h3>
+          <p class="text-muted text-sm leading-relaxed mb-4">DOM manipulation, async logic, event handling. The language
+            that makes the web alive.</p>
+          <div class="w-full bg-glass rounded-full h-1 mb-1">
+            <div class="progress-bar" style="background: linear-gradient(90deg, #C8FF00, #00FFB3); width: 75%;"></div>
+          </div>
+          <div class="text-right text-xs text-[#C8FF00] font-mono">75%</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NANOGS SECTION -->
+  <section id="nanogs" class="py-28 relative overflow-hidden">
+    <div class="orb w-96 h-96 bg-[#00FFB3] opacity-[0.04] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="section-label mb-4 reveal">03 — Featured Project</div>
+      <h2 class="font-display font-800 text-4xl md:text-5xl text-white mb-14 reveal">
+        Meet <span class="neon-text font-mono">nanoGS</span>
+      </h2>
+
+      <div class="nanogs-card rounded-3xl p-8 md:p-12 reveal">
+        <div class="relative z-10">
+          <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <span class="tag mb-4 inline-block">My Own Database</span>
+              <h3 class="font-display font-800 text-3xl md:text-4xl text-white mb-4">
+                A Database I Built<br>From Scratch
+              </h3>
+              <p class="text-muted leading-relaxed mb-6">
+                NanoGS is my custom-designed database system. I designed the architecture, the data structures, the
+                query logic — all of it. It's built with performance and simplicity in mind, and it's completely my own
+                work.
+              </p>
+              <div class="flex flex-wrap gap-2 mb-8">
+                <span class="tag">Custom Architecture</span>
+                <span class="tag">Data Structures</span>
+                <span class="tag">Query Engine</span>
+              </div>
+              <a href="https://itsrealahnaf.github.io/nanoGS/" target="_blank" class="btn-primary inline-flex items-center gap-2">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                </svg>
+                View on GitHub
+              </a>
+            </div>
+
+            <!-- DB Visual -->
+            <div class="glass-card rounded-2xl p-6 font-mono text-sm">
+              <div class="flex gap-1.5 mb-4">
+                <span class="w-3 h-3 rounded-full bg-red-500/70"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500/70"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500/70"></span>
+                <span class="text-muted text-xs ml-2">nanoGS.js</span>
+              </div>
+              <div class="space-y-3 text-sm leading-7">
+                <p><span class="text-[#C8FF00]">// Initialize NanoGS</span></p>
+                <p><span class="text-muted">nanoGS</span><span class="text-muted">.</span><span
+                    class="text-soft">init</span><span class="text-muted">()</span></p>
+                <p></p>
+                <p><span class="text-[#C8FF00]">// Import data</span></p>
+                <p><span class="text-soft">nanoGS</span><span class="text-muted">.</span><span
+                    class="text-[#00FFB3]">importData</span><span class="text-muted">(</span><span
+                    class="text-[#C8FF00]">dburl</span><span class="text-muted">)</span></p>
+                <p></p>
+                <p><span class="text-[#C8FF00]">// Export data</span></p>
+                <p><span class="text-soft">nanoGS</span><span class="text-muted">.</span><span
+                    class="text-[#00FFB3]">postData</span><span class="text-muted">(</span><span
+                    class="text-[#C8FF00]">dburl</span><span class="text-muted">, {</span></p>
+                <p><span class="text-muted pl-4">name:</span> <span class="text-[#C8FF00]">"ahnafalsadid"</span><span
+                    class="text-muted">,</span></p>
+                <p><span class="text-muted pl-4">role:</span> <span class="text-[#C8FF00]">"web developer"</span></p>
+                <p><span class="text-muted">})</span></p>
+                <p></p>
+                <p><span class="text-[#C8FF00]">// ✅ Custom. Fast. Mine.</span></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Features row -->
+          <div class="mt-10 pt-10 border-t border-[#00FFB3]/10 grid sm:grid-cols-3 gap-6">
+            <div>
+              <div class="neon-text font-display font-800 text-2xl mb-1">Custom</div>
+              <div class="text-muted text-sm">Built entirely by me — no frameworks</div>
+            </div>
+            <div>
+              <div class="neon-text font-display font-800 text-2xl mb-1">Nano</div>
+              <div class="text-muted text-sm">Lightweight and minimal by design</div>
+            </div>
+            <div>
+              <div class="neon-text font-display font-800 text-2xl mb-1">Open</div>
+              <div class="text-muted text-sm">Check the repo and contribute</div>
+            </div>
+          </div>
+
+          <!-- Contributor CTA -->
+          <div class="mt-8 p-6 rounded-2xl bg-[#00FFB3]/5 border border-[#00FFB3]/20">
+            <h4 class="font-display font-700 text-white text-lg mb-2">Want to contribute to NanoGS?</h4>
+            <p class="text-muted text-sm mb-4">The repository is open! Star it, fork it, submit PRs — all contributions
+              welcome. Let's build something great together.</p>
+            <a href="https://itsrealahnaf.github.io" target="_blank"
+              class="btn-outline text-sm py-2 px-5 inline-block">Add Me on
+              GitHub →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="py-28 relative">
+    <div class="orb w-96 h-96 bg-[#00FFB3] opacity-[0.05] bottom-0 left-0"></div>
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <div class="section-label mb-4 reveal">05 — Contact</div>
+      <h2 class="font-display font-800 text-5xl md:text-6xl text-white mb-6 reveal leading-tight">
+        Let's build<br>
+        something<br>
+        <span class="neon-text animate-glow">together.</span>
+      </h2>
+      <p class="text-muted text-lg mb-12 reveal max-w-md mx-auto">
+        Whether it's a web app, a database challenge, or a design project — I'm ready. Reach out and let's talk.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal">
+        <a href="mailto:ahnafalsadid@yahoo.com" class="btn-primary w-full sm:w-auto text-center">
+          ✉️ Send Email
+        </a>
+        <a href="https://itsrealahnaf.github.io" target="_blank" class="btn-outline w-full sm:w-auto text-center">
+          GitHub Profile
+        </a>
+      </div>
+
+      <div class="mt-16 pt-10 border-t border-white/5">
+        <div class="flex flex-wrap items-center justify-center gap-8 text-sm text-muted">
+          <a href="#home" class="hover:text-white transition-colors">Home</a>
+          <a href="#skills" class="hover:text-white transition-colors">Skills</a>
+          <a href="#nanogs" class="hover:text-white transition-colors">NanoGS</a>
+        </div>
+        <p class="mt-8 text-muted text-xs font-mono">
+          Built by Ahnaf Al Sadid | © 2026 All rights reserved
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Mobile menu
+    function toggleMenu() {
+      document.getElementById('mobile-menu').classList.toggle('open');
+    }
+
+    // Smooth nav active state
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('nav a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 100) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current ? '#00FFB3' : '';
+      });
+    });
+  </script>
+</body>
+
+</html>
